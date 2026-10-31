@@ -1,0 +1,107 @@
+! Title: Venom Quetta filters
+! Description: pop-under / ad-network hosts, anti-adblock wall hiding, shortlink-page helpers. Network + cosmetic rules work in any ABP-style blocker; the SCRIPTLET section needs uBlock-style +js() support (run the test list first).
+! Version: 1.0.0
+! Expires: 1 days
+! Homepage: https://github.com/Morningstar-1-star/venom-shield
+
+! ===== 0. never touch captcha / Cloudflare checks =====
+@@||challenges.cloudflare.com^
+@@||cloudflare.com/cdn-cgi/challenge-platform/
+@@||hcaptcha.com^
+@@||recaptcha.net^
+@@||google.com/recaptcha/
+@@||gstatic.com/recaptcha/
+
+! ===== 1. pop-under / click-bait ad networks (network rules) =====
+||popads.net^$third-party
+||popads.net^$popup
+||popcash.net^$third-party
+||popcash.net^$popup
+||propellerads.com^$third-party
+||propellerads.com^$popup
+||exoclick.com^$third-party
+||exoclick.com^$popup
+||exosrv.com^$third-party
+||exosrv.com^$popup
+||juicyads.com^$third-party
+||juicyads.com^$popup
+||trafficjunky.net^$third-party
+||trafficjunky.net^$popup
+||trafficfactory.biz^$third-party
+||trafficfactory.biz^$popup
+||adsterra.com^$third-party
+||adsterra.com^$popup
+||highperformanceformat.com^$third-party
+||highperformanceformat.com^$popup
+||effectivegatecpm.com^$third-party
+||effectivegatecpm.com^$popup
+||profitablegatecpm.com^$third-party
+||profitablegatecpm.com^$popup
+||hilltopads.net^$third-party
+||hilltopads.net^$popup
+||clickadu.com^$third-party
+||clickadu.com^$popup
+||clickaine.com^$third-party
+||clickaine.com^$popup
+||adcash.com^$third-party
+||adcash.com^$popup
+||a-ads.com^$third-party
+||a-ads.com^$popup
+||ad-maven.com^$third-party
+||ad-maven.com^$popup
+||admaven.com^$third-party
+||admaven.com^$popup
+||onclickads.net^$third-party
+||onclickads.net^$popup
+||onclkds.com^$third-party
+||onclkds.com^$popup
+||bidvertiser.com^$third-party
+||bidvertiser.com^$popup
+||yllix.com^$third-party
+||yllix.com^$popup
+||adspyglass.com^$third-party
+||adspyglass.com^$popup
+||plugrush.com^$third-party
+||plugrush.com^$popup
+||tsyndicate.com^$third-party
+||tsyndicate.com^$popup
+||realsrv.com^$third-party
+||realsrv.com^$popup
+||magsrv.com^$third-party
+||magsrv.com^$popup
+||ero-advertising.com^$third-party
+||ero-advertising.com^$popup
+||adtng.com^$third-party
+||adtng.com^$popup
+||trafficstars.com^$third-party
+||trafficstars.com^$popup
+
+! ===== 2. anti-adblock wall boxes (cosmetic rules) =====
+##.fc-ab-root
+##.adblock-modal, .adblock-overlay, .adblock-notice, .adblock-warning, .adb-overlay, .anti-adblock, .adblocker-modal, .adblock-popup
+###adblock-overlay, #adblock-modal, #adblock-notice, #adblocker-modal, #adblock_message, #anti-adblock-overlay, #adb-overlay
+##div[class*="adblock-detected" i], div[id*="adblock-detected" i], div[class*="adblock_detected" i]
+
+! ===== 3. ad-network stand-ins so 'did the ad load?' checks pass (needs $redirect support) =====
+||pagead2.googlesyndication.com/pagead/js/adsbygoogle.js$script,redirect=googlesyndication_adsbygoogle.js,important
+||googletagservices.com/tag/js/gpt.js$script,redirect=googletagservices_gpt.js,important
+||imasdk.googleapis.com/js/sdkloader/ima3.js$script,redirect=google-ima.js,important
+
+! ===== 4. SCRIPTLETS (experimental: need ##+js() support) =====
+! anti-adblock flags that many wall scripts read
+##+js(set-constant, canRunAds, true)
+##+js(set-constant, adBlockEnabled, false)
+##+js(set-constant, adBlockDetected, false)
+##+js(set-constant, isAdBlockActive, false)
+##+js(set-constant, adblockDetected, false)
+##+js(set-constant, adsAllowed, true)
+
+! stop pop-ups on shortlink sites only (login pop-ups elsewhere keep working)
+gplinks.co,gplinks.com,exe.io,exey.io,exeygo.com,ouo.io,ouo.press,uii.io,bc.vc,tpi.li,oii.la,shrinkme.io,shrinkearn.com,droplink.co,linkshortify.com,adrinolinks.in,urlsfly.com##+js(nowoif)
+
+! OPTIONAL timer speed-up on shortlink sites. Off by default: exe/ouo pages host a real captcha and fast timers can break it.
+! gplinks.co,gplinks.com##+js(nano-stb, , *, 0.1)
+! gplinks.co,gplinks.com##+js(nano-sib, , *, 0.1)
+
+! OPTIONAL scroll unlock for frozen pages (uncomment and scope to the sites that freeze, example.com is a placeholder)
+! example.com##body:style(overflow: auto !important)

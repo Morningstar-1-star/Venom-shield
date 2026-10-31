@@ -1,0 +1,14 @@
+! Title: Venom Quetta capability test
+! Description: tiny list that only affects the Venom test page. Add it, open test/quetta-test.html, read the PASS/FAIL table.
+! Expires: 1 days
+! Homepage: https://github.com/Morningstar-1-star/venom-shield
+venom-test-blocked.js
+venom-test-redirect.js$script,redirect=noopjs
+##.venom-test-hide
+##.venom-test-style:style(color: rgb(1, 2, 3) !important)
+##.venom-test-text:has-text(VENOM-HIDE-ME)
+##+js(set-constant, venomTestFlag, true)
+github.io##+js(set-constant, venomTestFlag2, true)
+##+js(nano-stb, venomTestTimer, 3000, 0.1)
+github.io##+js(nano-stb, venomTestTimer2, 3000, 0.1)
+github.io##+js(nowoif, venom-test-popup)

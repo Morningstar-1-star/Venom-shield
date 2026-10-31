@@ -1,0 +1,33 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Venom filter test</title>
+<style>body{font:15px system-ui;background:#111;color:#eee;padding:14px;max-width:640px;margin:auto}h1{font-size:19px}table{width:100%;border-collapse:collapse}td{padding:8px 4px;border-bottom:1px solid #333;vertical-align:top}.p{color:#14b878;font-weight:700}.f{color:#e5484d;font-weight:700}small{color:#999}button{background:#14b878;border:0;border-radius:8px;padding:10px 14px;font-weight:700;margin:6px 6px 6px 0}textarea{width:100%;height:150px;background:#000;color:#9fe8b8;border:1px solid #333}</style></head><body>
+<h1>Venom filter test</h1>
+<p><small>1) In Quetta: Content Filters &gt; Add filter using URL &gt; the raw link of <b>venom-test-filters.txt</b>. 2) Reload this page. FAIL = Quetta ignored that kind of rule.</small></p>
+<div class="venom-test-hide">VISIBLE-IF-HIDE-RULE-FAILED</div>
+<div class="venom-test-style" id="st">style-test</div>
+<div class="venom-test-text" id="tx">VENOM-HIDE-ME text rule</div>
+<table id="t"></table>
+<button id="pop">Run pop-up test (tap)</button><button id="copy">Copy report</button>
+<textarea id="rep" readonly></textarea>
+<script>
+const rows=[];
+function R(k,name,ok,note){rows.push([k,name,ok,note]);draw()}
+function draw(){document.getElementById('t').innerHTML=rows.map(r=>'<tr><td>'+r[1]+'<br><small>'+(r[3]||'')+'</small></td><td class="'+(r[2]?'p':'f')+'">'+(r[2]?'PASS':'FAIL')+'</td></tr>').join('');document.getElementById('rep').value=rows.map(r=>(r[2]?'PASS':'FAIL')+'  '+r[1]+(r[3]?' ('+r[3]+')':'')).join('\n')+'\nUA: '+navigator.userAgent}
+fetch('venom-test-blocked.js?'+Date.now(),{cache:'no-store'}).then(function(){R(1,'Network rule (plain URL block)',false,'request was NOT blocked')}).catch(function(){R(1,'Network rule (plain URL block)',true,'request blocked')});
+setTimeout(function(){
+ R(2,'Cosmetic hide  ##.class',getComputedStyle(document.querySelector('.venom-test-hide')).display==='none');
+ R(3,'Style rule  :style()',getComputedStyle(document.getElementById('st')).color==='rgb(1, 2, 3)');
+ R(4,'Text rule  :has-text()',getComputedStyle(document.getElementById('tx')).display==='none');
+ R(5,'Scriptlet set-constant (rule for ALL sites)',window.venomTestFlag===true,'needs ##+js() support');
+ R(6,'Scriptlet set-constant (rule for github.io only)',window.venomTestFlag2===true,'site-scoped scriptlet');
+ var s=document.createElement('script');s.src='venom-test-redirect.js?'+Date.now();
+ s.onload=function(){R(7,'Redirect resource  $redirect=noopjs',window.venomRedirectOriginal!==true,window.venomRedirectOriginal?'original file ran (not redirected)':'replaced by a stand-in')};
+ s.onerror=function(){R(7,'Redirect resource  $redirect=noopjs',false,'blocked outright instead of redirected')};
+ document.body.appendChild(s);
+ var t0=Date.now();setTimeout(function venomTestTimer(){var d=Date.now()-t0;R(8,'Timer speed-up nano-stb (ALL sites)',d<1500,'3000 ms timer fired after '+d+' ms')},3000);
+ var t1=Date.now();setTimeout(function venomTestTimer2(){var d=Date.now()-t1;R(9,'Timer speed-up nano-stb (github.io only)',d<1500,'3000 ms timer fired after '+d+' ms')},3000);
+},400);
+document.getElementById('pop').onclick=function(){var w=null;try{w=window.open('about:blank#venom-test-popup')}catch(e){}
+ var blocked=!w||w.closed;if(w&&!w.closed)w.close();R(10,'Pop-up guard nowoif (github.io only)',blocked,blocked?'window.open was stopped':'a pop-up opened')};
+document.getElementById('copy').onclick=function(){var t=document.getElementById('rep');t.select();document.execCommand('copy')};
+draw();
+</script></body></html>
